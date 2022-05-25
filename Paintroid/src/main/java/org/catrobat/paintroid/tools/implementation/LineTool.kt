@@ -23,7 +23,6 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import android.view.View
-import androidx.annotation.VisibleForTesting
 import org.catrobat.paintroid.command.CommandManager
 import org.catrobat.paintroid.command.serialization.SerializablePath
 import org.catrobat.paintroid.tools.ContextCallback
@@ -51,39 +50,20 @@ class LineTool(
     workspace,
     commandManager
 ) {
-    @VisibleForTesting
-    var lineFinalized: Boolean = false
-
-    @VisibleForTesting
-    var endpointSet: Boolean = false
-
-    @VisibleForTesting
-    var startpointSet: Boolean = false
-
-    @VisibleForTesting
-    var initialEventCoordinate: PointF? = null
-
-    @VisibleForTesting
-    var startPointToDraw: PointF? = null
-
-    @VisibleForTesting
-    var endPointToDraw: PointF? = null
-
-    @VisibleForTesting
-    var currentCoordinate: PointF? = null
-
     override var toolType: ToolType = ToolType.LINE
 
+    var lineFinalized: Boolean = false
+    var endpointSet: Boolean = false
+    var startpointSet: Boolean = false
+    var initialEventCoordinate: PointF? = null
+    var startPointToDraw: PointF? = null
+    var endPointToDraw: PointF? = null
+    var currentCoordinate: PointF? = null
     var toolSwitched: Boolean = false
-
     var lastSetStrokeWidth: Int = 0
-
     var connectedLines = false
-
     var undoRecentlyClicked = false
-
     var undoPreviousLineForConnectedLines = true
-
     var changeInitialCoordinateForHandleNormalLine = false
 
     companion object {
