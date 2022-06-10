@@ -679,15 +679,7 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
         }
     }
 
-<<<<<<< HEAD
-    fun getVersionCode(): String = try {
-        packageManager.getPackageInfo(packageName, 0).versionName
-    } catch (e: PackageManager.NameNotFoundException) {
-        ""
-    }
-=======
     fun getVersionCode(): String = runCatching {
         packageManager.getPackageInfo(packageName, 0).versionName
     }.getOrDefault("")
->>>>>>> 240adfb268ee90394f5cf58adffa29318ce75780
 }
