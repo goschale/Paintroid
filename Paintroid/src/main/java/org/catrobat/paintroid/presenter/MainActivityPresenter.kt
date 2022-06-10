@@ -27,6 +27,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
@@ -47,11 +48,11 @@ import org.catrobat.paintroid.common.CREATE_FILE_DEFAULT
 import org.catrobat.paintroid.common.LOAD_IMAGE_CATROID
 import org.catrobat.paintroid.common.LOAD_IMAGE_DEFAULT
 import org.catrobat.paintroid.common.LOAD_IMAGE_IMPORT_PNG
-import org.catrobat.paintroid.common.MainActivityConstants.PermissionRequestCode
+import org.catrobat.paintroid.common.MainActivityConstants.ActivityRequestCode
 import org.catrobat.paintroid.common.MainActivityConstants.CreateFileRequestCode
 import org.catrobat.paintroid.common.MainActivityConstants.LoadImageRequestCode
+import org.catrobat.paintroid.common.MainActivityConstants.PermissionRequestCode
 import org.catrobat.paintroid.common.MainActivityConstants.SaveImageRequestCode
-import org.catrobat.paintroid.common.MainActivityConstants.ActivityRequestCode
 import org.catrobat.paintroid.common.PERMISSION_EXTERNAL_STORAGE_SAVE
 import org.catrobat.paintroid.common.PERMISSION_EXTERNAL_STORAGE_SAVE_CONFIRMED_FINISH
 import org.catrobat.paintroid.common.PERMISSION_EXTERNAL_STORAGE_SAVE_CONFIRMED_LOAD_NEW
@@ -80,6 +81,7 @@ import org.catrobat.paintroid.iotasks.SaveImage.SaveImageCallback
 import org.catrobat.paintroid.model.CommandManagerModel
 import org.catrobat.paintroid.tools.ToolType
 import org.catrobat.paintroid.tools.Workspace
+import org.catrobat.paintroid.tools.implementation.LineTool
 import org.catrobat.paintroid.ui.LayerAdapter
 import org.catrobat.paintroid.ui.Perspective
 import java.io.File
@@ -293,7 +295,8 @@ open class MainActivityPresenter(
         FileIO.fileType = FileIO.FileType.PNG
         FileIO.isCatrobatImage = false
         FileIO.deleteTempFile(internalMemoryPath)
-        val initCommand = commandFactory.createInitCommand(metrics.widthPixels, metrics.heightPixels)
+        val initCommand =
+            commandFactory.createInitCommand(metrics.widthPixels, metrics.heightPixels)
         commandManager.setInitialStateCommand(initCommand)
         commandManager.reset()
     }
@@ -525,7 +528,13 @@ open class MainActivityPresenter(
         if (view.isKeyboardShown) {
             view.hideKeyboard()
         } else {
-            commandManager.undo()
+            setBottomNavigationColor(Color.BLACK)
+            if (toolController.currentTool is LineTool) {
+                (toolController.currentTool as LineTool).undoChangePaintColor(Color.BLACK)
+            } else {
+                toolController.currentTool?.changePaintColor(Color.BLACK)
+                commandManager.undo()
+            }
         }
     }
 
@@ -533,7 +542,11 @@ open class MainActivityPresenter(
         if (view.isKeyboardShown) {
             view.hideKeyboard()
         } else {
-            commandManager.redo()
+            if (toolController.currentTool is LineTool) {
+                (toolController.currentTool as LineTool).redoLineTool()
+            } else {
+                commandManager.redo()
+            }
         }
     }
 
@@ -885,7 +898,7 @@ open class MainActivityPresenter(
         if (bottomBarViewHolder.isVisible) {
             bottomBarViewHolder.hide()
         } else {
-            if (!layerAdapter!!.presenter.getLayerItem(workspace.currentLayerIndex).isVisible) {
+            if (layerAdapter?.presenter?.getLayerItem(workspace.currentLayerIndex)?.isVisible == false) {
                 navigator.showToast(R.string.no_tools_on_hidden_layer, Toast.LENGTH_SHORT)
                 return
             }
