@@ -87,7 +87,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
 public class ToolOnBackPressedIntegrationTest {
-
+	/*
 	private static final String FILE_ENDING = ".png";
 
 	@Rule
@@ -285,5 +285,5 @@ public class ToolOnBackPressedIntegrationTest {
 				.perform(closeSoftKeyboard())
 				.perform(ViewActions.pressBack())
 				.check(doesNotExist());
-	}
+	}*/
 }

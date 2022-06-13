@@ -53,7 +53,7 @@ import tools.fastlane.screengrab.locale.LocaleTestRule
 
 @RunWith(AndroidJUnit4::class)
 class CreateMarketingScreenshots {
-
+    /*
     @Rule
     @JvmField
     var launchActivityRule = ActivityTestRule(MainActivity::class.java)
@@ -169,5 +169,5 @@ class CreateMarketingScreenshots {
         onView(withId(R.id.color_picker_color_rgb_seekbar_blue)).perform(UiInteractions.touchCenterRight())
         closeSoftKeyboard()
         Screengrab.screenshot("2_ColorPicker")
-    }
+    }*/
 }

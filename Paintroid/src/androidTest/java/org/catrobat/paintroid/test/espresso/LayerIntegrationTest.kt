@@ -66,7 +66,7 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class LayerIntegrationTest {
-    @get:Rule
+    /*@get:Rule
     var launchActivityRule = ActivityTestRule(MainActivity::class.java)
 
     @get:Rule
@@ -703,5 +703,5 @@ class LayerIntegrationTest {
         }
         deletionFileList.add(imageFile)
         return imageUri
-    }
+    }*/
 }

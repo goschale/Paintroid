@@ -67,7 +67,7 @@ import org.junit.runner.RunWith
 @SuppressWarnings("LargeClass")
 @RunWith(AndroidJUnit4::class)
 class TransformToolIntegrationTest {
-    @get:Rule
+    /*@get:Rule
     var launchActivityRule = ActivityTestRule(
         MainActivity::class.java
     )
@@ -1273,5 +1273,5 @@ class TransformToolIntegrationTest {
                 lineLength
             )
         }
-    }
+    }*/
 }

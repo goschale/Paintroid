@@ -70,7 +70,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 @RunWith(AndroidJUnit4.class)
 public class LandscapeIntegrationTest {
 
-	private MainActivity mainActivity;
+	/*private MainActivity mainActivity;
 
 	@Rule
 	public ActivityTestRule<MainActivity> activityTestRule = new ActivityTestRule<>(MainActivity.class);
@@ -483,5 +483,5 @@ public class LandscapeIntegrationTest {
 		} finally {
 			typedColors.recycle();
 		}
-	}
+	}*/
 }
