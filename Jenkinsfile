@@ -130,7 +130,7 @@ pipeline {
                         sh "/home/user/android/sdk/emulator/emulator -no-window -no-boot-anim -noaudio -avd android28 > /dev/null 2>&1 &"
                         sh './gradlew -PenableCoverage -Pjenkins -Pemulator=android28 -Pci createDebugCoverageReport -i'
                         sh '/home/user/android/sdk/platform-tools/adb logcat -d > logcat.txt'
-                        sh 'mv -f logcat.txt ../Paintroid/Paintroid/build/outputs/logs/'
+                        sh 'mv -f logcat.txt ../Paintroid/build/outputs/logs/'
                     }
                     post {
                         always {
