@@ -132,6 +132,7 @@ pipeline {
                     }
                     post {
                         always {
+                            sh 'touch /home/user/Paintroid/logcat.txt'
                             sh '/home/user/android/sdk/platform-tools/adb logcat -f /home/user/Paintroid/logcat.txt'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
