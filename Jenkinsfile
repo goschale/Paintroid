@@ -136,7 +136,7 @@ pipeline {
                             sh 'mv -f logcat.txt ../Paintroid/build/outputs/logs/'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
-                            archiveArtifacts 'logcat.txt'
+                            archiveArtifacts '../Paintroid/build/outputs/logs/logcat.txt'
                         }
                     }
                 }
