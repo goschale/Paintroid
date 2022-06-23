@@ -129,13 +129,13 @@ pipeline {
                         sh "echo no | avdmanager create avd --force --name android28 --package 'system-images;android-28;default;x86_64'"
                         sh "/home/user/android/sdk/emulator/emulator -no-window -no-boot-anim -noaudio -avd android28 > /dev/null 2>&1 &"
                         sh './gradlew -PenableCoverage -Pjenkins -Pemulator=android28 -Pci createDebugCoverageReport -i'
-                        sh '/home/user/android/sdk/platform-tools/adb logcat -d > /home/user/logcat.txt'
+                        sh '/home/user/android/sdk/platform-tools/adb logcat -d > /home/user/Paintroid/build/outputs/logs/logcat.txt'
                     }
                     post {
                         always {
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
-                            archiveArtifacts '/home/user/logcat.txt'
+                            archiveArtifacts 'app/build/outputs/logcat.text'
                         }
                     }
                 }
