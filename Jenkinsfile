@@ -133,10 +133,10 @@ pipeline {
                     post {
                         always {
                             sh '/home/user/android/sdk/platform-tools/adb logcat -d > logcat.txt'
-                            sh 'mv -f logcat.txt ../Paintroid/build/outputs/logs/'
+                            //sh 'mv -f logcat.txt ../Paintroid/build/outputs/logs/'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
-                            archiveArtifacts 'app/build/outputs/logs/logcat.text'
+                            archiveArtifacts 'logcat.text'
                         }
                     }
                 }
