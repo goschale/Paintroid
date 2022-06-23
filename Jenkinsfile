@@ -135,7 +135,7 @@ pipeline {
                         always {
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
-                            archiveArtifacts 'app/build/outputs/logcat.text'
+                            archiveArtifacts 'app/build/outputs/logs/logcat.text'
                         }
                     }
                 }
