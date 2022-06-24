@@ -128,13 +128,14 @@ pipeline {
                     steps {
                         sh "echo no | avdmanager create avd --force --name android28 --package 'system-images;android-28;default;x86_64'"
                         sh "/home/user/android/sdk/emulator/emulator -no-window -no-boot-anim -noaudio -avd android28 > /dev/null 2>&1 &"
-                        sh 'pwd'
-                        sh 'touch Paintroid/logcat.txt'
+                        sh '/home/user/android/sdk/platform-tools/adb logcat -d > Paintroid/logcat.txt'
+                        sh 'cat /Paintroid/logcat.txt'
+                        archiveArtifacts 'Paintroid/logcat.txt'
                         sh './gradlew -PenableCoverage -Pjenkins -Pemulator=android28 -Pci createDebugCoverageReport -i'
                     }
                     post {
                         always {
-                            sh '/home/user/android/sdk/platform-tools/adb logcat -f Paintroid/logcat.txt'
+                            sh '/home/user/android/sdk/platform-tools/adb logcat -d > Paintroid/logcat.txt'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
                             archiveArtifacts 'Paintroid/logcat.txt'
