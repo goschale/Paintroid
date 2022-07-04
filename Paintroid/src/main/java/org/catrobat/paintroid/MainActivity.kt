@@ -77,6 +77,7 @@ import org.catrobat.paintroid.tools.implementation.DefaultToolPaint
 import org.catrobat.paintroid.tools.implementation.DefaultToolReference
 import org.catrobat.paintroid.tools.implementation.DefaultWorkspace
 import org.catrobat.paintroid.tools.implementation.LineTool
+import org.catrobat.paintroid.tools.implementation.TransformTool
 import org.catrobat.paintroid.tools.options.ToolOptionsViewController
 import org.catrobat.paintroid.ui.DrawingSurface
 import org.catrobat.paintroid.ui.KeyboardListener
@@ -101,10 +102,6 @@ private const val TEMP_IMAGE_SAVE_INTERVAL = 60
 private const val TEMP_IMAGE_IDLE_INTERVAL = 2 * TEMP_IMAGE_COROUTINE_DELAY_MILLI_SEC
 
 class MainActivity : AppCompatActivity(), MainView, CommandListener {
-
-    @VisibleForTesting
-    lateinit var model: MainActivityContracts.Model
-
     @VisibleForTesting
     lateinit var perspective: Perspective
 
@@ -115,16 +112,15 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
     lateinit var layerModel: LayerContracts.Model
 
     @VisibleForTesting
-    lateinit var commandManager: CommandManager
-
-    @VisibleForTesting
-    lateinit var toolPaint: ToolPaint
-
-    @VisibleForTesting
     lateinit var toolReference: ToolReference
 
     @VisibleForTesting
     lateinit var toolOptionsViewController: ToolOptionsViewController
+
+    lateinit var commandManager: CommandManager
+    lateinit var toolPaint: ToolPaint
+    lateinit var bottomNavigationViewHolder: BottomNavigationViewHolder
+    lateinit var model: MainActivityContracts.Model
 
     private lateinit var layerPresenter: LayerPresenter
     private lateinit var drawingSurface: DrawingSurface
@@ -133,7 +129,6 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
     private lateinit var keyboardListener: KeyboardListener
     private lateinit var appFragment: PaintroidApplicationFragment
     private lateinit var defaultToolController: DefaultToolController
-    private lateinit var bottomNavigationViewHolder: BottomNavigationViewHolder
     private lateinit var commandFactory: CommandFactory
     private var deferredRequestPermissionsResult: Runnable? = null
     private lateinit var progressBar: ContentLoadingProgressBar
@@ -268,7 +263,6 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
         onCreateDrawingSurface()
         presenterMain.onCreateTool()
 
-        var isOpenedFromCatroid = false
         val receivedIntent = intent
         isTemporaryFileSavingTest = intent.getBooleanExtra("isTemporaryFileSavingTest", false)
         when {
@@ -286,14 +280,15 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
                 val picturePath = intent.getStringExtra(PAINTROID_PICTURE_PATH)
                 val pictureName = intent.getStringExtra(PAINTROID_PICTURE_NAME)
                 presenterMain.initializeFromCleanState(picturePath, pictureName)
-                if (presenterMain.checkForTemporaryFile() && (!isRunningEspressoTests || isTemporaryFileSavingTest)) {
+
+                if (!model.isOpenedFromCatroid && presenterMain.checkForTemporaryFile() && (!isRunningEspressoTests || isTemporaryFileSavingTest)) {
                     commandManager.loadCommandsCatrobatImage(presenterMain.openTemporaryFile(workspace))
                 }
             }
             else -> {
                 val isFullscreen = savedInstanceState.getBoolean(IS_FULLSCREEN_KEY, false)
                 val isSaved = savedInstanceState.getBoolean(IS_SAVED_KEY, false)
-                isOpenedFromCatroid =
+                val isOpenedFromCatroid =
                     savedInstanceState.getBoolean(IS_OPENED_FROM_CATROID_KEY, false)
                 val isOpenedFromFormulaEditorInCatroid = savedInstanceState.getBoolean(
                     IS_OPENED_FROM_FORMULA_EDITOR_IN_CATROID_KEY, false
@@ -309,12 +304,12 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
 
         commandManager.addCommandListener(this)
         lastInteractionTime = System.currentTimeMillis()
-        if ((!isRunningEspressoTests || isTemporaryFileSavingTest) && !isOpenedFromCatroid) {
+        if ((!isRunningEspressoTests || isTemporaryFileSavingTest) && !model.isOpenedFromCatroid) {
             startAutoSaveCoroutine()
         }
         presenterMain.finishInitialize()
 
-        if (!org.catrobat.paintroid.BuildConfig.DEBUG) {
+        if (!BuildConfig.DEBUG) {
             val prefs = getSharedPreferences(SHARED_PREFS_NAME, 0)
 
             if (prefs.getBoolean(FIRST_LAUNCH_AFTER_INSTALL, true)) {
@@ -501,6 +496,9 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
         topBar.undoButton.setOnClickListener { presenterMain.undoClicked() }
         topBar.redoButton.setOnClickListener { presenterMain.redoClicked() }
         topBar.checkmarkButton.setOnClickListener {
+            if (toolReference.tool?.toolType?.name.equals(ToolType.TRANSFORM.name)) {
+                (toolReference.tool as TransformTool).checkMarkClicked = true
+            }
             val tool = toolReference.tool as BaseToolWithShape?
             tool?.onClickOnButton()
         }
@@ -679,4 +677,8 @@ class MainActivity : AppCompatActivity(), MainView, CommandListener {
             }
         }
     }
+
+    fun getVersionCode(): String = runCatching {
+        packageManager.getPackageInfo(packageName, 0).versionName
+    }.getOrDefault("")
 }

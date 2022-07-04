@@ -40,6 +40,8 @@ import org.catrobat.paintroid.R
 import org.catrobat.paintroid.WelcomeActivity
 import org.catrobat.paintroid.colorpicker.ColorPickerDialog
 import org.catrobat.paintroid.colorpicker.OnColorPickedListener
+import org.catrobat.paintroid.command.CommandFactory
+import org.catrobat.paintroid.command.implementation.DefaultCommandFactory
 import org.catrobat.paintroid.common.ABOUT_DIALOG_FRAGMENT_TAG
 import org.catrobat.paintroid.common.ADVANCED_SETTINGS_DIALOG_FRAGMENT_TAG
 import org.catrobat.paintroid.common.CATROBAT_INFORMATION_DIALOG_TAG
@@ -92,11 +94,14 @@ class MainActivityNavigator(
     private val mainActivity: MainActivity,
     private val toolReference: ToolReference
 ) : MainActivityContracts.Navigator {
-
     override val isSdkAboveOrEqualM: Boolean
+        @SuppressLint("AnnotateVersionCheck")
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
     override val isSdkAboveOrEqualQ: Boolean
+        @SuppressLint("AnnotateVersionCheck")
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+    private var commandFactory: CommandFactory = DefaultCommandFactory()
 
     private fun showFragment(
         fragment: Fragment,
@@ -128,8 +133,8 @@ class MainActivityNavigator(
     private fun setupColorPickerDialogListeners(dialog: ColorPickerDialog) {
         dialog.addOnColorPickedListener(object : OnColorPickedListener {
             override fun colorChanged(color: Int) {
-                toolReference.tool?.changePaintColor(color)
-                mainActivity.presenter.setBottomNavigationColor(color)
+                val command = commandFactory.createColorChangedCommand(toolReference, mainActivity, color)
+                mainActivity.commandManager.addCommand(command)
             }
         })
         mainActivity.presenter.bitmap?.let { dialog.setBitmap(it) }
@@ -158,13 +163,10 @@ class MainActivityNavigator(
         try {
             mainActivity.startActivity(openPlayStore)
         } catch (e: ActivityNotFoundException) {
-            val uriNoPlayStore =
-                Uri.parse("http://play.google.com/store/apps/details?id=$applicationId")
+            val uriNoPlayStore = Uri.parse("http://play.google.com/store/apps/details?id=$applicationId")
             val noPlayStoreInstalled = Intent(Intent.ACTION_VIEW, uriNoPlayStore)
-            val activityInfo = noPlayStoreInstalled.resolveActivityInfo(
-                mainActivity.packageManager, noPlayStoreInstalled.flags
-            )
-            if (activityInfo.exported) {
+
+            runCatching {
                 mainActivity.startActivity(noPlayStoreInstalled)
             }
         }

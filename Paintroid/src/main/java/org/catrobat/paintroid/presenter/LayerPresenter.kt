@@ -72,7 +72,7 @@ class LayerPresenter(
                 val lineTool = currentTool as LineTool
                 if (!lineTool.lineFinalized && lineTool.startpointSet && !lineTool.endpointSet) {
                     if (commandManager.isUndoAvailable) {
-                        commandManager.undo()
+                        commandManager.undoIgnoringColorChanges()
                     }
                     lineTool.startPointToDraw = null
                     lineTool.startpointSet = false
@@ -269,7 +269,7 @@ class LayerPresenter(
 
     fun resetMergeColor(layerPosition: Int) {
         if (adapter != null && adapter?.getViewHolderAt(layerPosition) != null) {
-            if (adapter?.getViewHolderAt(layerPosition)!!.isSelected()) {
+            if (adapter?.getViewHolderAt(layerPosition)?.isSelected() == true) {
                 adapter?.getViewHolderAt(layerPosition)?.setSelected()
             } else {
                 adapter?.getViewHolderAt(layerPosition)?.setDeselected()
