@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 # Android Dependencies
 # --------------------
 # Adapt the paramters below to change the dependencies.
@@ -50,8 +50,9 @@ RUN apt-get update
 RUN apt-get install -y python2
 RUN apt-get install -y --no-install-recommends \
         openjdk-11-jdk-headless \
-        rubygems \
-        ruby-dev \
+        ruby-full \
+        #rubygems \
+        #ruby-dev \
         g++ \
         make \
         less \

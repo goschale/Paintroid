@@ -31,11 +31,20 @@ pipeline {
     }
 
     agent {
-         docker {
-            image 'catrobat/catrobat-android:stable'
-            args '--device /dev/kvm:/dev/kvm -v /var/local/container_shared/gradle_cache/$EXECUTOR_NUMBER:/home/user/.gradle -m=6.5G'
-            label 'LimitedEmulator'
-            alwaysPull true
+       dockerfile {
+            filename 'Dockerfile.jenkins'
+            // 'docker build' would normally copy the whole build-dir to the container, changing the
+            // docker build directory avoids that overhead
+            dir 'docker'
+            // Pass the uid and the gid of the current user (jenkins-user) to the Dockerfile, so a
+            // corresponding user can be added. This is needed to provide the jenkins user inside
+            // the container for the ssh-agent to work.
+            // Another way would be to simply map the passwd file, but would spoil additional information
+            // Also hand in the group id of kvm to allow using /dev/kvm.
+            additionalBuildArgs '--build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) --build-arg KVM_GROUP_ID=$(getent group kvm | cut -d: -f3)'
+            // Ensure that each executor has its own gradle cache to not affect other builds
+            // that run concurrently.
+            args '--device /dev/kvm:/dev/kvm'
         }
     }
 
@@ -118,14 +127,13 @@ pipeline {
                     steps {
                         sh "echo no | avdmanager create avd --force --name android28 --package 'system-images;android-28;default;x86_64'"
                         sh "/home/user/android/sdk/emulator/emulator -no-window -no-boot-anim -noaudio -avd android28 > /dev/null 2>&1 &"
-                        sh '/home/user/android/sdk/platform-tools/adb logcat -d > Paintroid/logcat.txt'
-                        sh 'cat /Paintroid/logcat.txt'
-                        archiveArtifacts 'Paintroid/logcat.txt'
-                        sh './gradlew -PenableCoverage -Pjenkins -Pemulator=android28 -Pci createDebugCoverageReport -i'
+                        //sh './gradlew -PenableCoverage -Pjenkins -Pemulator=android28 -Pci createDebugCoverageReport -i'
                     }
                     post {
                         always {
-                            sh '/home/user/android/sdk/platform-tools/adb logcat -d > Paintroid/logcat.txt'
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh '/home/user/android/sdk/platform-tools/adb logcat -d > logcat.txt'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
                             archiveArtifacts 'Paintroid/logcat.txt'
