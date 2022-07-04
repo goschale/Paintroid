@@ -136,7 +136,7 @@ pipeline {
                             sh '/home/user/android/sdk/platform-tools/adb logcat -d > logcat.txt'
                             sh './gradlew stopEmulator'
                             junitAndCoverage "$reports/coverage/debug/report.xml", 'device', javaSrc
-                            archiveArtifacts 'Paintroid/logcat.txt'
+                            archiveArtifacts 'logcat.txt'
                         }
                     }
                 }
